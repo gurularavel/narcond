@@ -1,0 +1,119 @@
+{{ header }}{{ column_left }}
+<div id="content">
+  <div class="page-header">
+    <div class="container-fluid">
+      <div class="pull-right">
+        <button type="submit" form="form-payment" data-toggle="tooltip" title="{{ button_save }}" class="btn btn-primary"><i class="fa fa-save"></i></button>
+        <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i class="fa fa-reply"></i></a></div>
+      <h1>{{ heading_title }}</h1>
+      <ul class="breadcrumb">
+        {% for breadcrumb in breadcrumbs %}
+        <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="container-fluid">
+    {% if error_warning %}
+    <div class="alert alert-danger alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ error_warning }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    {% if notice %}
+    <div class="alert alert-info alert-dismissible"><i class="fa fa-exclamation-circle"></i> {{ notice }}
+      <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    {% endif %}
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_edit }}</h3>
+      </div>
+      <div class="panel-body">
+        <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-payment" class="form-horizontal">
+
+        <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+            <div class="col-sm-10">
+              <select name="payment_kapital_bank_status" id="input-status" class="form-control">
+                {% if payment_kapital_bank_status %}
+                <option value="1" selected="selected">{{ text_enabled }}</option>
+                <option value="0">{{ text_disabled }}</option>
+                {% else %}
+                <option value="1">{{ text_enabled }}</option>
+                <option value="0" selected="selected">{{ text_disabled }}</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label">{{ entry_test }}</label>
+            <div class="col-sm-10">
+              <label class="radio-inline">
+                {% if payment_kapital_bank_test %}
+                <input type="radio" name="payment_kapital_bank_test" value="1" checked="checked" />
+                {{ text_yes }}
+                {% else %}
+                <input type="radio" name="payment_kapital_bank_test" value="1" />
+                {{ text_yes }}
+                {% endif %}
+              </label>
+              <label class="radio-inline">
+                {% if not payment_kapital_bank_test %}
+                <input type="radio" name="payment_kapital_bank_test" value="0" checked="checked" />
+                {{ text_no }}
+                {% else %}
+                <input type="radio" name="payment_kapital_bank_test" value="0" />
+                {{ text_no }}
+                {% endif %}
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-certificate">{{ entry_certificate }}</span></label>
+            <div class="col-sm-10">
+              <input type="file" name="payment_kapital_bank_certificate" value="{{ payment_kapital_bank_certificate }}" placeholder="{{ entry_certificate }}" id="input-certificate" class="custom-file-input" />
+              {% if payment_kapital_bank_certificate %}
+                <span>Uploaded file <b>{{ payment_kapital_bank_certificate }}</b></span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-certificate_key">{{ entry_certificate_key }}</span></label>
+            <div class="col-sm-10">
+              <input type="file" name="payment_kapital_bank_certificate_key" value="{{ payment_kapital_bank_certificate_key }}" placeholder="{{ entry_certificate_key }}" id="input-certificate_key" class="custom-file-input" />
+              {% if payment_kapital_bank_certificate_key %}
+              <span>Uploaded file <b>{{ payment_kapital_bank_certificate_key }}</b></span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-merchant_id">{{ entry_merchant_id }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_kapital_bank_merchant_id" value="{{ payment_kapital_bank_merchant_id }}" placeholder="{{ entry_merchant_id }}" id="input-merchant_id" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-taksit_check">{{ entry_taksit_check }}</span></label>
+            <div class="col-sm-10">
+              <input type="checkbox" name="payment_kapital_bank_taksit_check" value="1" {% if payment_kapital_bank_taksit_check %} checked {% endif %} placeholder="{{ entry_taksit_check }}" id="input-taksit_check" class="form-control" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="col-sm-2 control-label" for="input-taxes">{{ entry_taxes }}</span></label>
+            <div class="col-sm-10">
+              <input type="text" name="payment_kapital_bank_taxes" value="{{ payment_kapital_bank_taxes }}" placeholder="{{ entry_taxes }}" id="input-taxes" class="form-control" />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{{ footer }}

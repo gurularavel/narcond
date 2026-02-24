@@ -1,0 +1,45 @@
+{% if taksit_enabled %}
+<div class="form-group">
+    <label for="kapital_bank_taksit">Taksit</label>
+    <select id="kapital_bank_taksit" name="kapital_bank_taksit" id="" class="form-control">
+        <option value="0">Pay full</option>
+        {% for taksit in taksits %}
+            <option value="{{ taksit }}">{{ taksit }}</option>
+        {% endfor %}
+    </select>
+</div>
+{% endif %}
+
+<div class="buttons">
+  <div class="pull-right">
+    <input type="button" value="{{ button_confirm }}" id="button-confirm" data-loading-text="{{ text_loading }}" class="btn btn-primary" />
+</div>
+<script type="text/javascript">
+$('#button-confirm').on('click', function() {
+  $.ajax({
+    url: 'index.php?route=extension/payment/kapital_bank/confirm',
+    dataType: 'json',
+    data:{
+        kapital_bank_taksit:$('#kapital_bank_taksit').val()
+    },
+    beforeSend: function() {
+      $('#button-confirm').button('loading');
+    },
+    complete: function() {
+      $('#button-confirm').button('reset');
+    },
+    success: function(json) {
+      if (json.error){
+        alert(json.message);
+      } else {
+        if (json.redirect) {
+          window.location = json.redirect;
+        }
+      }
+    },
+    error: function(xhr, ajaxOptions, thrownError) {
+      alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+    }
+  });
+});
+</script>
