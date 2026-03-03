@@ -9,8 +9,10 @@ return array(
 	// Ay => faiz (%)
 	// Formula: (qiymet * (1 + faiz / 100)) / ay
 	'plans' => array(
-		3 => 100,
-		6 => 10,
-		9 => 10,
+		2 => 3.2,
+		3 => 4.2,
+		6 => 6,
+		12 => 15,
+		18 => 20,
 	),
 );
