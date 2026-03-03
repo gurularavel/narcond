@@ -81,6 +81,10 @@
               <span class="price-tax">{{ text_tax }}{{ product.tax }}</span>
             {% endif %}
           </div>
+          <div class="installment-widget">
+            <div class="installment-tabs" role="tablist" aria-label="Kredit ay secimi"></div>
+            <div class="installment-result"><span class="installment-label">Ayliq:</span> <strong class="installment-value"></strong></div>
+          </div>
         {% endif %}
 
         {% if product.rating %}

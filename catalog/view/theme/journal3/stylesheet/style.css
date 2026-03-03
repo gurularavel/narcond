@@ -2778,6 +2778,39 @@ https://www.journal-theme.com/
   .product-thumb .price-tax {
     color: #999;
     display: block; }
+  .product-thumb .installment-widget {
+    margin-top: 10px;
+    padding: 8px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: #fafafa; }
+  .product-thumb .installment-tabs {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    gap: 6px;
+    margin-bottom: 6px; }
+  .product-thumb .installment-tab {
+    border: 1px solid #cfcfcf;
+    background: #fff;
+    color: #555;
+    font-size: 11px;
+    line-height: 1;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer; }
+  .product-thumb .installment-tab.is-active {
+    background: #23a1d1;
+    border-color: #23a1d1;
+    color: #fff; }
+  .product-thumb .installment-result {
+    font-size: 12px;
+    color: #444; }
+  .product-thumb .installment-result .installment-label {
+    color: #777;
+    font-weight: 400; }
+  .product-thumb .installment-result .installment-value {
+    font-weight: 700; }
   .product-thumb .countdown {
     position: absolute;
     bottom: 0;

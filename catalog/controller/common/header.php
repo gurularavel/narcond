@@ -76,6 +76,66 @@ class ControllerCommonHeader extends Controller {
 		$data['search'] = $this->load->controller('common/search');
 		$data['cart'] = $this->load->controller('common/cart');
 		$data['menu'] = $this->load->controller('common/menu');
+		
+		$installment_config = array(
+			'enabled' => true,
+			'label'   => 'Ayliq:',
+			'plans'   => array(
+				array('months' => 3, 'rate' => 10),
+				array('months' => 6, 'rate' => 10),
+				array('months' => 9, 'rate' => 10),
+			),
+		);
+
+		$installment_config_file = DIR_SYSTEM . 'config/installment.php';
+
+		if (is_file($installment_config_file)) {
+			$custom_installment_config = require($installment_config_file);
+
+			if (is_array($custom_installment_config)) {
+				if (isset($custom_installment_config['enabled'])) {
+					$installment_config['enabled'] = (bool)$custom_installment_config['enabled'];
+				}
+
+				if (isset($custom_installment_config['label']) && is_string($custom_installment_config['label'])) {
+					$installment_config['label'] = $custom_installment_config['label'];
+				}
+
+				if (isset($custom_installment_config['plans']) && is_array($custom_installment_config['plans'])) {
+					$normalized_plans = array();
+
+					foreach ($custom_installment_config['plans'] as $month_key => $plan_value) {
+						$months = 0;
+						$rate = 0.0;
+
+						if (is_array($plan_value)) {
+							$months = isset($plan_value['months']) ? (int)$plan_value['months'] : (int)$month_key;
+							$rate = isset($plan_value['rate']) ? (float)$plan_value['rate'] : 0.0;
+						} else {
+							$months = (int)$month_key;
+							$rate = (float)$plan_value;
+						}
+
+						if ($months > 0) {
+							$normalized_plans[] = array(
+								'months' => $months,
+								'rate'   => $rate,
+							);
+						}
+					}
+
+					if ($normalized_plans) {
+						usort($normalized_plans, function($a, $b) {
+							return (int)$a['months'] - (int)$b['months'];
+						});
+
+						$installment_config['plans'] = $normalized_plans;
+					}
+				}
+			}
+		}
+
+		$data['installment_config'] = $installment_config;
 
 		return $this->load->view('common/header', $data);
 	}

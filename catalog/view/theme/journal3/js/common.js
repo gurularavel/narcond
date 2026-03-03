@@ -567,3 +567,197 @@ window['loader'] = function (el, status) {
 window['resize_iframe'] = function (module_id, height) {
 	$('.module-popup-' + module_id + ' iframe').height(height);
 };
+
+function parseInstallmentPrice(rawText) {
+	var text = $.trim(rawText || '');
+	var match = text.match(/-?\d[\d\s.,]*/);
+
+	if (!match) {
+		return null;
+	}
+
+	var numberText = $.trim(match[0]);
+	var start = text.indexOf(numberText);
+	var prefix = $.trim(text.substring(0, start));
+	var suffix = $.trim(text.substring(start + numberText.length));
+	var numeric = numberText.replace(/\s+/g, '');
+	var lastComma = numeric.lastIndexOf(',');
+	var lastDot = numeric.lastIndexOf('.');
+	var decimalSeparator = '';
+
+	if (lastComma > -1 && lastDot > -1) {
+		decimalSeparator = lastComma > lastDot ? ',' : '.';
+	} else if (lastComma > -1 && numeric.length - lastComma - 1 <= 2) {
+		decimalSeparator = ',';
+	} else if (lastDot > -1 && numeric.length - lastDot - 1 <= 2) {
+		decimalSeparator = '.';
+	}
+
+	if (decimalSeparator) {
+		var thousandSeparator = decimalSeparator === ',' ? /\./g : /,/g;
+		numeric = numeric.replace(thousandSeparator, '');
+		numeric = numeric.replace(decimalSeparator, '.');
+	} else {
+		numeric = numeric.replace(/[.,]/g, '');
+	}
+
+	var amount = parseFloat(numeric);
+
+	if (isNaN(amount)) {
+		return null;
+	}
+
+	return {
+		amount: amount,
+		prefix: prefix,
+		suffix: suffix
+	};
+}
+
+function getInstallmentConfig() {
+	var fallback = {
+		enabled: true,
+		label: 'Ayliq:',
+		plans: [
+			{ months: 3, rate: 10 },
+			{ months: 6, rate: 10 },
+			{ months: 9, rate: 10 }
+		]
+	};
+
+	if (!window.Journal || !window.Journal.installmentConfig) {
+		return fallback;
+	}
+
+	var config = $.extend(true, {}, fallback, window.Journal.installmentConfig);
+	var plans = [];
+
+	if ($.isArray(config.plans)) {
+		$.each(config.plans, function (_, plan) {
+			var months = parseInt(plan.months, 10);
+			var rate = parseFloat(plan.rate);
+
+			if (months > 0) {
+				plans.push({
+					months: months,
+					rate: isNaN(rate) ? 0 : rate
+				});
+			}
+		});
+	} else if (typeof config.plans === 'object' && config.plans !== null) {
+		$.each(config.plans, function (monthKey, rateValue) {
+			var months = parseInt(monthKey, 10);
+			var rate = parseFloat(rateValue);
+
+			if (months > 0) {
+				plans.push({
+					months: months,
+					rate: isNaN(rate) ? 0 : rate
+				});
+			}
+		});
+	}
+
+	plans.sort(function (a, b) {
+		return a.months - b.months;
+	});
+
+	config.plans = plans.length ? plans : fallback.plans;
+	config.enabled = !!config.enabled;
+
+	return config;
+}
+
+function formatInstallmentAmount(amount, prefix, suffix) {
+	var formatter = window.Intl && window.Intl.NumberFormat ? new Intl.NumberFormat('az-AZ', {
+		minimumFractionDigits: 2,
+		maximumFractionDigits: 2
+	}) : null;
+
+	var formatted = formatter ? formatter.format(amount) : amount.toFixed(2);
+	formatted = formatted.replace(/,00$/, '').replace(/\.00$/, '');
+
+	if (prefix) {
+		formatted = prefix + ' ' + formatted;
+	}
+
+	if (suffix) {
+		formatted += ' ' + suffix;
+	}
+
+	return $.trim(formatted);
+}
+
+function updateInstallmentWidget($widget, month, rate) {
+	var $price = $widget.closest('.caption').find('.price .price-new, .price .price-normal').first();
+	var parsed = parseInstallmentPrice($price.text());
+
+	if (!parsed || month <= 0) {
+		$widget.find('.installment-value').text('');
+		return;
+	}
+
+	var appliedRate = isNaN(rate) ? 0 : rate;
+	var monthly = (parsed.amount * (1 + (appliedRate / 100))) / month;
+	$widget.find('.installment-value').text(formatInstallmentAmount(monthly, parsed.prefix, parsed.suffix));
+}
+
+function initInstallmentWidgets() {
+	var installmentConfig = getInstallmentConfig();
+
+	$('.product-thumb .installment-widget').each(function () {
+		var $widget = $(this);
+		var $tabs = $widget.find('.installment-tabs');
+
+		if (!installmentConfig.enabled) {
+			$widget.hide();
+			return;
+		}
+
+		$widget.show();
+		$widget.find('.installment-label').text(installmentConfig.label || 'Ayliq:');
+
+		if (!$widget.data('tabsBuilt')) {
+			var tabsHtml = '';
+
+			$.each(installmentConfig.plans, function (index, plan) {
+				var activeClass = index === 0 ? ' is-active' : '';
+				tabsHtml += '<button type="button" class="installment-tab' + activeClass + '" data-month="' + plan.months + '" data-rate="' + plan.rate + '">' + plan.months + ' ay</button>';
+			});
+
+			$tabs.html(tabsHtml);
+			$widget.data('tabsBuilt', true);
+		}
+
+		var $active = $widget.find('.installment-tab.is-active').first();
+
+		if (!$active.length) {
+			$active = $widget.find('.installment-tab').first().addClass('is-active');
+		}
+
+		var month = parseInt($active.attr('data-month'), 10) || 3;
+		var rate = parseFloat($active.attr('data-rate'));
+
+		updateInstallmentWidget($widget, month, rate);
+	});
+}
+
+$(function () {
+	initInstallmentWidgets();
+	$(document).ajaxComplete(initInstallmentWidgets);
+});
+
+$(document).on('click', '.installment-widget .installment-tab', function () {
+	var $tab = $(this);
+	var $widget = $tab.closest('.installment-widget');
+	var month = parseInt($tab.attr('data-month'), 10);
+	var rate = parseFloat($tab.attr('data-rate'));
+
+	if (!month) {
+		return;
+	}
+
+	$widget.find('.installment-tab').removeClass('is-active');
+	$tab.addClass('is-active');
+	updateInstallmentWidget($widget, month, rate);
+});

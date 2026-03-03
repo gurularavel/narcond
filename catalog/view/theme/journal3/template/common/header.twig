@@ -37,7 +37,10 @@
 {% if j3.constant('SENTRY_JS_DSN') %}
 {{ j3.constant('SENTRY_JS_DSN') }}
 {% endif %}
-<script>window['Journal'] = {{ j3.document.getJs() | json_encode }};</script>
+<script>
+window['Journal'] = {{ j3.document.getJs() | json_encode }};
+window['Journal']['installmentConfig'] = {{ installment_config|default({}) | json_encode }};
+</script>
 {% if not j3.document.isPopup() %}
 <script>{{ j3.loadController('journal3/mql') }}</script>
 {% endif %}
