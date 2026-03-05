@@ -1,7 +1,7 @@
 <?php
 return array(
 	// Kredit blokunu aktiv/deaktiv et
-	'enabled' => true,
+	'enabled' => false,
 
 	// Ayliq mebleg metni
 	'label' => 'Ayliq:',
