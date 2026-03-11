@@ -78,6 +78,7 @@
               <div class="iwc-b-months">
                 <button class="iwc-b-m active" data-m="3"  data-r="0" type="button">3 ay</button>
                 <button class="iwc-b-m"        data-m="6"  data-r="0" type="button">6 ay</button>
+                <button class="iwc-b-m"        data-m="9"  data-r="0" type="button">9 ay</button>
                 <button class="iwc-b-m"        data-m="12" data-r="0" type="button">12 ay</button>
                 <button class="iwc-b-m"        data-m="24" data-r="0" type="button">24 ay</button>
               </div>
@@ -91,8 +92,49 @@
         </div>
         <script>
         if(!window._iwcB){window._iwcB=1;(function(){
+          function esc(s){
+            return String(s).replace(/[&<>"']/g,function(ch){
+              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+            });
+          }
+          function getBanks(){
+            var cfg=window.Journal&&window.Journal.installmentConfig;
+            return cfg&&cfg.banks&&cfg.banks.length?cfg.banks:[];
+          }
+          function renderWidget(w){
+            var banks=getBanks();
+            var html='<div class="iwc-b-tabs">';
+            banks.forEach(function(bank,index){
+              var active=index===0?' active':'';
+              var logo=bank.logo?"<img src=\""+esc(bank.logo)+"\" alt=\""+esc(bank.name)+"\" onerror=\"this.style.display='none'\">":'';
+              html+='<button class="iwc-b-tab'+active+'" type="button">'+logo+'<span>'+esc(bank.name)+'</span></button>';
+            });
+            html+='</div>';
+            banks.forEach(function(bank,index){
+              var active=index===0?' active':'';
+              html+='<div class="iwc-b-panel'+active+'">';
+              html+='<div class="iwc-b-section"><div class="iwc-b-slbl">Muddet</div><div class="iwc-b-months">';
+              bank.plans.forEach(function(plan,planIndex){
+                html+='<button class="iwc-b-m'+(planIndex===0?' active':'')+'" data-m="'+parseInt(plan.months,10)+'" data-r="'+parseFloat(plan.rate||0)+'" type="button">'+parseInt(plan.months,10)+' ay</button>';
+              });
+              html+='</div></div>';
+              html+='<div class="iwc-b-res"><div class="iwc-b-ri"><span class="iwc-b-rlbl">Ayliq odenis:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div><div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymet:</span><strong class="iwc-b-rval iwc-b-total"></strong></div></div>';
+              html+='<p class="iwc-b-note">Qeyd: Sifarisin resmilesdirilmesi zamani 10%-e qeder xidmet haqqi elave oluna biler</p>';
+              html+='</div>';
+            });
+            w.innerHTML=html;
+          }
           function initIwcB(w){
             if(w.dataset.iwcB)return;w.dataset.iwcB='1';
+            if(window.Journal && window.Journal.installmentConfig && window.Journal.installmentConfig.enabled === false){
+              w.remove();
+              return;
+            }
+            if(!getBanks().length){
+              w.remove();
+              return;
+            }
+            renderWidget(w);
             function getPrice(){
               var p=parseFloat(window.narcondIP);if(p>0)return p;
               var el=document.querySelector('.iwc-pp[data-price]');

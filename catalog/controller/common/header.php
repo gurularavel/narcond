@@ -85,6 +85,7 @@ class ControllerCommonHeader extends Controller {
 				array('months' => 6, 'rate' => 10),
 				array('months' => 9, 'rate' => 10),
 			),
+			'banks'   => array(),
 		);
 
 		$installment_config_file = DIR_SYSTEM . 'config/installment.php';
@@ -130,6 +131,54 @@ class ControllerCommonHeader extends Controller {
 						});
 
 						$installment_config['plans'] = $normalized_plans;
+					}
+				}
+
+				if (isset($custom_installment_config['banks']) && is_array($custom_installment_config['banks'])) {
+					$normalized_banks = array();
+
+					foreach ($custom_installment_config['banks'] as $bank_id => $bank) {
+						if (!is_array($bank) || empty($bank['plans']) || !is_array($bank['plans'])) {
+							continue;
+						}
+
+						$bank_name = isset($bank['name']) && is_string($bank['name']) ? $bank['name'] : (string)$bank_id;
+						$bank_logo = isset($bank['logo']) && is_string($bank['logo']) ? $server . ltrim($bank['logo'], '/') : '';
+						$bank_plans = array();
+
+						foreach ($bank['plans'] as $months => $rate) {
+							$months = (int)$months;
+
+							if ($months <= 0) {
+								continue;
+							}
+
+							$bank_plans[] = array(
+								'months' => $months,
+								'rate'   => (float)$rate,
+							);
+						}
+
+						if (!$bank_plans) {
+							continue;
+						}
+
+						usort($bank_plans, function($a, $b) {
+							return (int)$a['months'] - (int)$b['months'];
+						});
+
+						$normalized_banks[] = array(
+							'id'    => (string)$bank_id,
+							'name'  => $bank_name,
+							'logo'  => $bank_logo,
+							'plans' => $bank_plans,
+						);
+					}
+
+					$installment_config['banks'] = $normalized_banks;
+
+					if ($normalized_banks && !empty($normalized_banks[0]['plans'])) {
+						$installment_config['plans'] = $normalized_banks[0]['plans'];
 					}
 				}
 			}

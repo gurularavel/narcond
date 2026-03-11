@@ -13,7 +13,7 @@
 return array(
 
     // Kredit bölməsini göstər / gizlət
-    'enabled' => true,
+    'enabled' => false,
 
     // Banklar
     'banks' => array(

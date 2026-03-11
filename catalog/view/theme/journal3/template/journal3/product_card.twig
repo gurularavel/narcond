@@ -1,48 +1,147 @@
 {% set prefix = display == 'grid' ? 'ProductGrid' : 'ProductList' %}
-{% set iwc_banks = [
-  {id:'birbank',  name:'Birbank',  logo:'image/catalog/banks/birbank.png',  months:[{m:3,r:0},{m:6,r:0},{m:12,r:0},{m:18,r:0}]},
-  {id:'tamkart',  name:'TamKart',  logo:'image/catalog/banks/tamkart.png', months:[{m:3,r:0},{m:6,r:0},{m:12,r:0},{m:24,r:0}]}
-] %}
 <script>
-
 if(!window._iwc){window._iwc=1;
 var _iwcS=document.createElement('style');
 _iwcS.textContent='.iwc{background:#fff;border-radius:10px;border:1px solid #eee;padding:14px;margin-top:10px;font-size:14px;box-sizing:border-box}.iwc-tabs{display:flex;gap:6px;margin-bottom:12px}.iwc-tab{flex:1;display:flex;align-items:center;justify-content:center;padding:5px 6px;border:1.5px solid #e0e0e0;border-radius:8px;background:#fff;cursor:pointer;min-height:36px;transition:border-color .15s,box-shadow .15s}.iwc-tab img{max-height:20px;max-width:72px;object-fit:contain;pointer-events:none}.iwc-tab>span{font-size:11px;font-weight:600;pointer-events:none}.iwc-tab.active{border-color:#111;box-shadow:0 0 0 1px #111}.iwc-panel{display:none}.iwc-panel.active{display:block}.iwc-slbl{font-size:11px;font-weight:600;color:#333;margin:0 0 7px}.iwc-months{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.iwc-m{padding:5px 12px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:11px;color:#333;transition:all .15s;white-space:nowrap}.iwc-m.active{background:#d32f2f;border-color:#d32f2f;color:#fff}.iwc-m:hover:not(.active){background:#f5f5f5}.iwc-res{display:flex;justify-content:space-between;gap:8px}.iwc-ri{display:flex;flex-direction:column;gap:2px}.iwc-rlbl{font-size:10px;color:#888}.iwc-rval{font-size:16px;font-weight:700;color:#111;display:block}.iwc-note{font-size:9px;color:#aaa;margin:8px 0 0;line-height:1.4}';
 document.head.appendChild(_iwcS);
 (function(){
-function calc(w,p){
-  var price=parseFloat(w.dataset.price)||0;
-  var am=p.querySelector('.iwc-m.active');if(!am)return;
-  var monthly=price*(1+parseFloat(am.dataset.r)/100)/parseInt(am.dataset.m);
-  p.querySelector('.iwc-monthly').textContent=monthly.toFixed(2)+' \u20bc';
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+function getBanks(){
+  var cfg = window.Journal && window.Journal.installmentConfig;
+  return cfg && cfg.enabled !== false && cfg.banks && cfg.banks.length ? cfg.banks : [];
+}
+function renderWidget(w){
+  var banks = getBanks();
+  var total = esc(w.dataset.total || '');
+  var html = '<div class="iwc-tabs">';
+
+  banks.forEach(function(bank, index){
+    var active = index === 0 ? ' active' : '';
+    var logo = bank.logo ? "<img src=\"" + esc(bank.logo) + "\" alt=\"" + esc(bank.name) + "\" onerror=\"this.style.display='none';if(this.nextSibling){this.nextSibling.style.display='block';}\">" : '';
+    html += '<button class="iwc-tab' + active + '" type="button">' + logo + '<span' + (bank.logo ? ' style="display:none"' : '') + '>' + esc(bank.name) + '</span></button>';
+  });
+
+  html += '</div>';
+
+  banks.forEach(function(bank, index){
+    var active = index === 0 ? ' active' : '';
+
+    html += '<div class="iwc-panel' + active + '">';
+    html += '<div class="iwc-slbl">Muddet</div>';
+    html += '<div class="iwc-months">';
+
+    bank.plans.forEach(function(plan, planIndex){
+      html += '<button class="iwc-m' + (planIndex === 0 ? ' active' : '') + '" data-m="' + parseInt(plan.months, 10) + '" data-r="' + parseFloat(plan.rate || 0) + '" type="button">' + parseInt(plan.months, 10) + ' ay</button>';
+    });
+
+    html += '</div>';
+    html += '<div class="iwc-res">';
+    html += '<div class="iwc-ri"><span class="iwc-rlbl">Ayliq odenis:</span><strong class="iwc-rval iwc-monthly"></strong></div>';
+    html += '<div class="iwc-ri" style="text-align:right"><span class="iwc-rlbl">Yekun qiymet:</span><strong class="iwc-rval">' + total + '</strong></div>';
+    html += '</div>';
+    html += '<p class="iwc-note">Qeyd: Sifarisin resmilesdirilmesi zamani 10%-e qeder xidmet haqqi elave oluna biler</p>';
+    html += '</div>';
+  });
+
+  w.innerHTML = html;
+}
+function calc(w, panel){
+  var price = parseFloat(w.dataset.price) || 0;
+  var activeMonth = panel.querySelector('.iwc-m.active');
+
+  if (!activeMonth) {
+    return;
+  }
+
+  var monthly = price * (1 + parseFloat(activeMonth.dataset.r) / 100) / parseInt(activeMonth.dataset.m, 10);
+  panel.querySelector('.iwc-monthly').textContent = monthly.toFixed(2) + ' \u20bc';
 }
 function initW(w){
-  if(w.dataset.iwc)return;w.dataset.iwc='1';
-  var card=w.closest('.product-layout,.product-thumb');
-  var pe=card&&card.querySelector('.price-new,.price-normal');
-  if(pe){var pv=parseFloat(pe.textContent.replace(/,/g,'').replace(/[^\d.]/g,''));if(pv>0)w.dataset.price=pv;}
-  w.addEventListener('click',function(e){e.stopPropagation();e.preventDefault && (e.cancelBubble=true);});
-  w.querySelectorAll('.iwc-panel').forEach(function(p){calc(w,p);});
-  w.querySelectorAll('.iwc-tab').forEach(function(t,i){
-    t.addEventListener('click',function(){
-      w.querySelectorAll('.iwc-tab').forEach(function(x){x.classList.remove('active');});
-      w.querySelectorAll('.iwc-panel').forEach(function(x){x.classList.remove('active');});
-      t.classList.add('active');w.querySelectorAll('.iwc-panel')[i].classList.add('active');
+  if (w.dataset.iwc) {
+    return;
+  }
+
+  w.dataset.iwc = '1';
+
+  if (!getBanks().length) {
+    w.remove();
+    return;
+  }
+
+  var card = w.closest('.product-layout,.product-thumb');
+  var priceEl = card && card.querySelector('.price-new,.price-normal');
+
+  if (priceEl) {
+    var parsedValue = parseFloat(priceEl.textContent.replace(/,/g, '').replace(/[^\d.]/g, ''));
+
+    if (parsedValue > 0) {
+      w.dataset.price = parsedValue;
+    }
+  }
+
+  renderWidget(w);
+
+  w.addEventListener('click', function(e){
+    e.stopPropagation();
+    if (e.preventDefault) {
+      e.preventDefault();
+    }
+    e.cancelBubble = true;
+  });
+
+  w.querySelectorAll('.iwc-panel').forEach(function(panel){
+    calc(w, panel);
+  });
+
+  w.querySelectorAll('.iwc-tab').forEach(function(tab, index){
+    tab.addEventListener('click', function(){
+      w.querySelectorAll('.iwc-tab').forEach(function(node){ node.classList.remove('active'); });
+      w.querySelectorAll('.iwc-panel').forEach(function(node){ node.classList.remove('active'); });
+      tab.classList.add('active');
+      w.querySelectorAll('.iwc-panel')[index].classList.add('active');
     });
   });
-  w.querySelectorAll('.iwc-panel').forEach(function(p){
-    p.querySelectorAll('.iwc-m').forEach(function(b){
-      b.addEventListener('click',function(){
-        p.querySelectorAll('.iwc-m').forEach(function(x){x.classList.remove('active');});
-        b.classList.add('active');calc(w,p);
+
+  w.querySelectorAll('.iwc-panel').forEach(function(panel){
+    panel.querySelectorAll('.iwc-m').forEach(function(button){
+      button.addEventListener('click', function(){
+        panel.querySelectorAll('.iwc-m').forEach(function(node){ node.classList.remove('active'); });
+        button.classList.add('active');
+        calc(w, panel);
       });
     });
   });
 }
-function initAll(){document.querySelectorAll('.iwc:not([data-iwc])').forEach(initW);}
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initAll);}else{initAll();}
-if(window.MutationObserver){new MutationObserver(function(ms){ms.forEach(function(m){m.addedNodes.forEach(function(n){if(n.nodeType!==1)return;if(n.classList&&n.classList.contains('iwc'))initW(n);else if(n.querySelectorAll)n.querySelectorAll('.iwc:not([data-iwc])').forEach(initW);});});}).observe(document.body,{childList:true,subtree:true});}
-})();}
+function initAll(){
+  document.querySelectorAll('.iwc:not([data-iwc])').forEach(initW);
+}
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', initAll);
+} else {
+  initAll();
+}
+if(window.MutationObserver){
+  new MutationObserver(function(mutations){
+    mutations.forEach(function(mutation){
+      mutation.addedNodes.forEach(function(node){
+        if(node.nodeType !== 1){
+          return;
+        }
+        if(node.classList && node.classList.contains('iwc')){
+          initW(node);
+        } else if(node.querySelectorAll) {
+          node.querySelectorAll('.iwc:not([data-iwc])').forEach(initW);
+        }
+      });
+    });
+  }).observe(document.body, {childList:true, subtree:true});
+}
+})();
+}
 </script>
 {% for product in products %}
   {% set classes = j3.classes({
@@ -78,7 +177,6 @@ if(window.MutationObserver){new MutationObserver(function(ms){ms.forEach(functio
                 <img src="{{ product.second_thumb }}" {% if product.second_thumb2x %}srcset="{{ product.second_thumb }} 1x, {{ product.second_thumb2x }} 2x" {% endif %} width="{{ image_width }}" height="{{ image_height }}" alt="{{ product.name }}" title="{{ product.name }}" class="img-responsive img-second"/>
               {% endif %}
             {% endif %}
-
           </div>
         </a>
 
@@ -203,36 +301,7 @@ if(window.MutationObserver){new MutationObserver(function(ms){ms.forEach(functio
         {% endif %}
 
         {% if product.price %}
-        <div class="iwc" data-price="{{ product.price_value }}">
-          <div class="iwc-tabs">
-            {% for bank in iwc_banks %}
-            <button class="iwc-tab{% if loop.first %} active{% endif %}" type="button">
-              <img src="{{ bank.logo }}" alt="{{ bank.name }}" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="display:none">{{ bank.name }}</span>
-            </button>
-            {% endfor %}
-          </div>
-          {% for bank in iwc_banks %}
-          <div class="iwc-panel{% if loop.first %} active{% endif %}">
-            <div class="iwc-slbl">Müddət</div>
-            <div class="iwc-months">
-              {% for plan in bank.months %}
-              <button class="iwc-m{% if loop.first %} active{% endif %}" data-m="{{ plan.m }}" data-r="{{ plan.r }}" type="button">{{ plan.m }} ay</button>
-              {% endfor %}
-            </div>
-            <div class="iwc-res">
-              <div class="iwc-ri">
-                <span class="iwc-rlbl">Aylıq ödəniş:</span>
-                <strong class="iwc-rval iwc-monthly"></strong>
-              </div>
-              <div class="iwc-ri" style="text-align:right">
-                <span class="iwc-rlbl">Yekun qiymət:</span>
-                <strong class="iwc-rval">{{ product.special ? product.special : product.price }}</strong>
-              </div>
-            </div>
-            <p class="iwc-note">Qeyd: Sifarişin rəsmiləşdirilməsi zamanı 10%-ə qədər xidmət haqqı əlavə oluna bilər</p>
-          </div>
-          {% endfor %}
-        </div>
+        <div class="iwc" data-price="{{ product.price_value }}" data-total="{{ (product.special ? product.special : product.price)|e('html_attr') }}"></div>
         {% endif %}
 
       </div>
