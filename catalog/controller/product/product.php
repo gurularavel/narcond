@@ -458,7 +458,45 @@ class ControllerProductProduct extends Controller {
 			$data['recurrings'] = $this->model_catalog_product->getProfiles($this->request->get['product_id']);
 
 			$this->model_catalog_product->updateViewed($this->request->get['product_id']);
-			
+
+			// --- Kredit / taksit widget ---
+			$installment_config = require(DIR_SYSTEM . 'config/installment.php');
+			$data['installment_enabled'] = !empty($installment_config['enabled']);
+			$data['installment_banks']   = array();
+
+			// Məhsulun xam qiymətini həmişə hesabla (blocks.twig widget üçün lazımdır)
+			$_eff_price = (!is_null($product_info['special']) && (float)$product_info['special'] >= 0)
+				? (float)$product_info['special']
+				: (float)$product_info['price'];
+			$data['installment_raw_price'] = (float)$this->tax->calculate($_eff_price, $product_info['tax_class_id'], $this->config->get('config_tax'));
+
+			if ($data['installment_enabled']) {
+				$raw_price    = $data['installment_raw_price'];
+				$display_total = (!is_null($product_info['special']) && (float)$product_info['special'] >= 0)
+					? $this->currency->format($this->tax->calculate($product_info['special'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency'])
+					: $this->currency->format($this->tax->calculate($product_info['price'], $product_info['tax_class_id'], $this->config->get('config_tax')), $this->session->data['currency']);
+
+				foreach ($installment_config['banks'] as $bank_id => $bank) {
+					$bank_plans = array();
+					foreach ($bank['plans'] as $months => $interest) {
+						$monthly      = $raw_price * (1 + $interest / 100) / $months;
+						$bank_plans[] = array(
+							'months'  => (int)$months,
+							'monthly' => $this->currency->format($monthly, $this->session->data['currency']),
+							'rate'    => (float)$interest,
+						);
+					}
+					$data['installment_banks'][] = array(
+						'id'    => $bank_id,
+						'name'  => $bank['name'],
+						'logo'  => HTTP_SERVER . ltrim($bank['logo'], '/'),
+						'plans' => $bank_plans,
+						'total' => $display_total,
+					);
+				}
+			}
+			// --- /Kredit widget ---
+
 			$data['column_left'] = $this->load->controller('common/column_left');
 			$data['column_right'] = $this->load->controller('common/column_right');
 			$data['content_top'] = $this->load->controller('common/content_top');

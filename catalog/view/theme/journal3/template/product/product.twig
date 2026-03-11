@@ -20,6 +20,7 @@
 {% set description = '' %}
 {% endif %}
 {{ header }}
+<script>window.narcondIP={{ installment_raw_price }};</script>
 {% if not j3.document.isPopup() %}
 <ul class="breadcrumb">
   {% for breadcrumb in breadcrumbs %}
@@ -30,6 +31,7 @@
   <h1 class="title page-title"><span>{{ heading_title }}</span></h1>
 {% endif %}
 {{ j3.loadController('journal3/layout', 'top') }}
+
 <div id="product-product" class="container">
   <div class="row">{{ column_left }}
     <div id="content" class="{{ class }}">
@@ -360,6 +362,117 @@
           </div>
           {% endif %}
 
+          {% if installment_enabled and installment_banks and price and not j3.document.isPopup() %}
+          <div class="iwc-pp" data-price="{{ installment_raw_price }}">
+            <style>
+              .iwc-pp{background:#fff;border-radius:12px;border:1px solid #eee;padding:18px;margin:16px 0}
+              .iwc-pp-tabs{display:flex;gap:8px;margin-bottom:16px}
+              .iwc-pp-tab{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;cursor:pointer;min-height:42px;transition:border-color .15s,box-shadow .15s}
+              .iwc-pp-tab img{max-height:24px;max-width:90px;object-fit:contain;pointer-events:none}
+              .iwc-pp-tab>span{font-size:13px;font-weight:600;pointer-events:none}
+              .iwc-pp-tab.active{border-color:#111;box-shadow:0 0 0 1px #111}
+              .iwc-pp-tab:hover:not(.active){border-color:#aaa}
+              .iwc-pp-panel{display:none}
+              .iwc-pp-panel.active{display:block}
+              .iwc-pp-section{background:#f9f9f9;border-radius:10px;padding:14px 16px;margin-bottom:12px}
+              .iwc-pp-slbl{font-size:12px;font-weight:600;color:#444;margin:0 0 10px}
+              .iwc-pp-months{display:flex;gap:7px;flex-wrap:wrap}
+              .iwc-pp-m{padding:6px 14px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:13px;color:#333;transition:all .15s;white-space:nowrap}
+              .iwc-pp-m.active{background:#d32f2f;border-color:#d32f2f;color:#fff}
+              .iwc-pp-m:hover:not(.active){background:#f0f0f0}
+              .iwc-pp-stepper{display:flex;align-items:center;gap:12px}
+              .iwc-pp-sbtn{width:36px;height:36px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#333;user-select:none;-webkit-user-select:none}
+              .iwc-pp-sbtn:hover{background:#f5f5f5}
+              .iwc-pp-sval{flex:1;text-align:center;font-size:20px;font-weight:500;color:#111}
+              .iwc-pp-ssym{font-size:18px;color:#555}
+              .iwc-pp-res{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-top:4px}
+              .iwc-pp-ri{display:flex;flex-direction:column;gap:3px}
+              .iwc-pp-rlbl{font-size:12px;color:#888}
+              .iwc-pp-rval{font-size:22px;font-weight:700;color:#111;display:block}
+              .iwc-pp-note{font-size:11px;color:#aaa;margin:12px 0 0;line-height:1.5}
+            </style>
+            <div class="iwc-pp-tabs">
+              {% for bank in installment_banks %}
+              <button class="iwc-pp-tab{% if loop.first %} active{% endif %}" type="button">
+                <img src="{{ bank.logo }}" alt="{{ bank.name }}" onerror="this.style.display='none';this.nextSibling.style.display='block'"><span style="display:none">{{ bank.name }}</span>
+              </button>
+              {% endfor %}
+            </div>
+            {% for bank in installment_banks %}
+            <div class="iwc-pp-panel{% if loop.first %} active{% endif %}">
+              <div class="iwc-pp-section">
+                <div class="iwc-pp-slbl">Müddət</div>
+                <div class="iwc-pp-months">
+                  {% for plan in bank.plans %}
+                  <button class="iwc-pp-m{% if loop.first %} active{% endif %}" data-m="{{ plan.months }}" data-r="{{ plan.rate }}" type="button">{{ plan.months }} ay</button>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="iwc-pp-section">
+                <div class="iwc-pp-slbl">İlkin ödəniş</div>
+                <div class="iwc-pp-stepper">
+                  <button class="iwc-pp-sbtn iwc-pp-dec" type="button">−</button>
+                  <span class="iwc-pp-sval">0</span>
+                  <span class="iwc-pp-ssym">₼</span>
+                  <button class="iwc-pp-sbtn iwc-pp-inc" type="button">+</button>
+                </div>
+              </div>
+              <div class="iwc-pp-res">
+                <div class="iwc-pp-ri">
+                  <span class="iwc-pp-rlbl">Aylıq ödəniş:</span>
+                  <strong class="iwc-pp-rval iwc-pp-monthly"></strong>
+                </div>
+                <div class="iwc-pp-ri" style="text-align:right">
+                  <span class="iwc-pp-rlbl">Yekun qiymət:</span>
+                  <strong class="iwc-pp-rval">{{ bank.total }}</strong>
+                </div>
+              </div>
+              <p class="iwc-pp-note">Qeyd: Sifarişin rəsmiləşdirilməsi zamanı 10%-ə qədər xidmət haqqı əlavə oluna bilər</p>
+            </div>
+            {% endfor %}
+          </div>
+          <script>
+          (function(){
+            var w=document.querySelector('.iwc-pp');
+            if(!w)return;
+            var price=parseFloat(w.dataset.price)||0;
+            var step=Math.max(10,Math.ceil(price/50/10)*10);
+            function calc(panel){
+              var init=parseFloat(panel.querySelector('.iwc-pp-sval').textContent)||0;
+              var am=panel.querySelector('.iwc-pp-m.active');
+              if(!am)return;
+              var monthly=Math.max(0,price-init)*(1+parseFloat(am.dataset.r)/100)/parseInt(am.dataset.m);
+              panel.querySelector('.iwc-pp-monthly').textContent=monthly.toFixed(2)+' \u20bc';
+            }
+            w.querySelectorAll('.iwc-pp-panel').forEach(function(p){calc(p);});
+            w.querySelectorAll('.iwc-pp-tab').forEach(function(t,i){
+              t.addEventListener('click',function(){
+                w.querySelectorAll('.iwc-pp-tab').forEach(function(x){x.classList.remove('active');});
+                w.querySelectorAll('.iwc-pp-panel').forEach(function(x){x.classList.remove('active');});
+                t.classList.add('active');
+                w.querySelectorAll('.iwc-pp-panel')[i].classList.add('active');
+              });
+            });
+            w.querySelectorAll('.iwc-pp-panel').forEach(function(panel){
+              panel.querySelectorAll('.iwc-pp-m').forEach(function(b){
+                b.addEventListener('click',function(){
+                  panel.querySelectorAll('.iwc-pp-m').forEach(function(x){x.classList.remove('active');});
+                  b.classList.add('active');calc(panel);
+                });
+              });
+              panel.querySelector('.iwc-pp-inc').addEventListener('click',function(){
+                var el=panel.querySelector('.iwc-pp-sval'),v=(parseFloat(el.textContent)||0)+step;
+                if(v>=price)v=price-step;if(v<0)v=0;el.textContent=v;calc(panel);
+              });
+              panel.querySelector('.iwc-pp-dec').addEventListener('click',function(){
+                var el=panel.querySelector('.iwc-pp-sval'),v=(parseFloat(el.textContent)||0)-step;
+                if(v<0)v=0;el.textContent=v;calc(panel);
+              });
+            });
+          })();
+          </script>
+          {% endif %}
+
           {% if options %}
           <div class="product-options">
             <h3 class="options-title title">{{ text_option }}</h3>
@@ -569,6 +682,7 @@
           </div>
         </div>
       {% endif %}
+
       {% if not j3.document.isPopup('options') %}
         {% if product_blocks.default %}
         <div class="product-blocks blocks-default">

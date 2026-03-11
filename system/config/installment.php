@@ -1,29 +1,46 @@
 <?php
+/**
+ * Kredit (taksit) konfiqurasiyası
+ *
+ * Formula: (qiymet * (1 + faiz / 100)) / ay
+ *   faiz = 0   → faizsiz taksit (qiymət bölünür)
+ *   faiz > 0   → artım (banka faizi)
+ *   faiz < 0   → endirim
+ *
+ * Logolar: image/catalog/banks/ qovluğuna yükləyin
+ *   Tövsiyə olunan ölçü: 120×40 px, PNG (şəffaf fon)
+ */
 return array(
-	// Kredit blokunu aktiv/deaktiv et
-	'enabled' => false,
 
-	// Ayliq mebleg metni
-	'label' => 'Ayliq:',
+    // Kredit bölməsini göstər / gizlət
+    'enabled' => true,
 
-	// Ay => faiz (%)
-	//
-	// Formula: (qiymet * (1 + faiz / 100)) / ay
-	//
-	// Misal: qiymet = 696 AZN, 12 ay, faiz = -6.61%
-	//   (696 * (1 + (-6.61 / 100))) / 12
-	//   = (696 * 0.9339) / 12
-	//   = 650.0 / 12
-	//   = 54.17 AZN/ay
-	//
-	// Menfi faiz => endirim (qiymeti azaldır)
-	// Musbat faiz => artım  (qiymeti artırır)
-	//
-	'plans' => array(
-		2  => -14,
-		3  => -13.2,
-		6  => -11.7,
-		12 => -6.61,
-		18 => 0,
-	),
+    // Banklar
+    'banks' => array(
+
+
+        'birbank' => array(
+            'name' => 'Birbank',
+            'logo' => 'image/catalog/banks/birbank.png',
+            'plans' => array(
+                3  => 0,
+                6  => 0,
+                12 => 0,
+                18 => 0,
+            ),
+        ),
+
+        'tamkart' => array(
+            'name' => 'TamKart',
+            'logo' => 'image/catalog/banks/tamkart.png',
+            'plans' => array(
+                3  => 0,
+                6  => 0,
+                9  => 0,
+                12 => 0,
+                24 => 0,
+            ),
+        ),
+
+    ),
 );

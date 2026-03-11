@@ -21,9 +21,9 @@
   {% endif %}
 {% endmacro %}
 {% import _self as self %}
+
 <div class="{{ j3.classes(classes) }}">
   <div class="module-body">
-    {# grid #}
     {% if sectionsDisplay == 'blocks' %}
       {% for item in items %}
         <div class="{{ j3.classes(item.classes) }}">
