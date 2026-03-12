@@ -126,6 +126,10 @@
           }
           function initIwcB(w){
             if(w.dataset.iwcB)return;w.dataset.iwcB='1';
+            if(!document.getElementById('product-product')){
+              w.remove();
+              return;
+            }
             if(window.Journal && window.Journal.installmentConfig && window.Journal.installmentConfig.enabled === false){
               w.remove();
               return;
