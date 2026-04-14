@@ -11,6 +11,6 @@ jobs:
     - name: 📂 Sync files
       uses: SamKirkland/FTP-Deploy-Action@v4.3.6
       with:
-        server: 192.250.229.81
+        server: 69.72.244.43
         username: git@narcond.com
         password: ${{ secrets.ftp_password }}
