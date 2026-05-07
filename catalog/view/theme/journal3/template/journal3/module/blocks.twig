@@ -1,195 +1,195 @@
-{#{% macro renderBlocksItem(item, context) %}#}
-{#  {% import _self as self %}#}
-{#  <div class="block-body expand-block">#}
-{#    {% if context.display == 'grid' and item.title %}#}
-{#      <h3 class="title module-title block-title">{{ item.title }}</h3>#}
-{#    {% endif %}#}
-{#    {% if item.header == 'image' %}#}
-{#      {% if context.j3.settings.get('performanceLazyLoadImagesStatus') and context.lazyLoad %}#}
-{#        <div class="block-header"><img src="{{ context.dummy_image }}" data-src="{{ item.image }}" {% if item.image2x %}data-srcset="{{ item.image }} 1x, {{ item.image2x }} 2x" {% endif %} alt="{{ item.alt }}" width="{{ context.imageDimensions.width }}" height="{{ context.imageDimensions.height }}" class="block-image lazyload"/></div>#}
-{#      {% else %}#}
-{#        <div class="block-header"><img src="{{ item.image }}" {% if item.image2x %}srcset="{{ item.image }} 1x, {{ item.image2x }} 2x" {% endif %} alt="{{ item.alt }}" width="{{ context.imageDimensions.width }}" height="{{ context.imageDimensions.height }}" class="block-image"/></div>#}
-{#      {% endif %}#}
-{#    {% elseif item.header == 'icon' %}#}
-{#      <div class="block-header"><i class="icon icon-block"></i></div>#}
-{#    {% elseif item.header == 'text' %}#}
-{#      <div class="block-header"><span class="block-header-text">{{ item.text }}</span></div>#}
-{#    {% endif %}#}
-{#    <div class="block-wrapper">#}
-{#      <div class="block-content {% if item.expandButton %}expand-content{% endif %} block-{{ item.contentType }}">#}
-{#        {% if item.contentType == 'map' %}#}
-{#        <div class="journal-loading"><i class="fa fa-spinner fa-spin"></i></div>#}
-{#        {% endif %}#}
+{% macro renderBlocksItem(item, context) %}
+  {% import _self as self %}
+  <div class="block-body expand-block">
+    {% if context.display == 'grid' and item.title %}
+      <h3 class="title module-title block-title">{{ item.title }}</h3>
+    {% endif %}
+    {% if item.header == 'image' %}
+      {% if context.j3.settings.get('performanceLazyLoadImagesStatus') and context.lazyLoad %}
+        <div class="block-header"><img src="{{ context.dummy_image }}" data-src="{{ item.image }}" {% if item.image2x %}data-srcset="{{ item.image }} 1x, {{ item.image2x }} 2x" {% endif %} alt="{{ item.alt }}" width="{{ context.imageDimensions.width }}" height="{{ context.imageDimensions.height }}" class="block-image lazyload"/></div>
+      {% else %}
+        <div class="block-header"><img src="{{ item.image }}" {% if item.image2x %}srcset="{{ item.image }} 1x, {{ item.image2x }} 2x" {% endif %} alt="{{ item.alt }}" width="{{ context.imageDimensions.width }}" height="{{ context.imageDimensions.height }}" class="block-image"/></div>
+      {% endif %}
+    {% elseif item.header == 'icon' %}
+      <div class="block-header"><i class="icon icon-block"></i></div>
+    {% elseif item.header == 'text' %}
+      <div class="block-header"><span class="block-header-text">{{ item.text }}</span></div>
+    {% endif %}
+    <div class="block-wrapper">
+      <div class="block-content {% if item.expandButton %}expand-content{% endif %} block-{{ item.contentType }}">
+        {% if item.contentType == 'map' %}
+        <div class="journal-loading"><i class="fa fa-spinner fa-spin"></i></div>
+        {% endif %}
 
-{#        {{ item.content }}#}
+        {{ item.content }}
 
-{#        <style>#}
-{#        .iwc-b{font-family:inherit;box-sizing:border-box}.iwc-b *{box-sizing:border-box}#}
-{#        .iwc-b-tabs{display:flex;gap:8px;margin-bottom:14px}#}
-{#        .iwc-b-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;cursor:pointer;min-height:44px;transition:all .15s}#}
-{#        .iwc-b-tab img{max-height:22px;max-width:80px;object-fit:contain;pointer-events:none}#}
-{#        .iwc-b-tab>span{font-size:12px;font-weight:600;color:#333;pointer-events:none;white-space:nowrap}#}
-{#        .iwc-b-tab.active{background:#111;border-color:#111}#}
-{#        .iwc-b-tab.active img{filter:brightness(0) invert(1)}#}
-{#        .iwc-b-tab.active>span{color:#fff}#}
-{#        .iwc-b-tab:hover:not(.active){border-color:#aaa}#}
-{#        .iwc-b-panel{display:none}.iwc-b-panel.active{display:block}#}
-{#        .iwc-b-section{background:#f5f5f5;border-radius:12px;padding:16px 18px;margin-bottom:10px}#}
-{#        .iwc-b-slbl{font-size:13px;font-weight:600;color:#222;margin:0 0 12px}#}
-{#        .iwc-b-months{display:flex;gap:8px;flex-wrap:wrap}#}
-{#        .iwc-b-m{padding:7px 16px;border:1.5px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:13px;color:#333;transition:all .15s;white-space:nowrap}#}
-{#        .iwc-b-m.active{background:#d32f2f;border-color:#d32f2f;color:#fff}#}
-{#        .iwc-b-m:hover:not(.active){background:#ebebeb;border-color:#ccc}#}
-{#        .iwc-b-res{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:4px 0 8px}#}
-{#        .iwc-b-ri{display:flex;flex-direction:column;gap:4px}#}
-{#        .iwc-b-rlbl{font-size:12px;color:#888}#}
-{#        .iwc-b-rval{font-size:26px;font-weight:700;color:#111;line-height:1.1;display:block}#}
-{#        .iwc-b-note{font-size:11px;color:#aaa;line-height:1.5;margin:0}#}
-{#        </style>#}
-{#        <div class="iwc-b">#}
-{#          <div class="iwc-b-tabs">#}
-{#            <button class="iwc-b-tab active" type="button">#}
-{#              <img src="image/catalog/banks/birbank.png" alt="Birbank" onerror="this.style.display='none'">#}
-{#              <span>Birbank</span>#}
-{#            </button>#}
-{#            <button class="iwc-b-tab" type="button">#}
-{#              <img src="image/catalog/banks/tamkart.png" alt="TamKart" onerror="this.style.display='none'">#}
-{#              <span>TamKart</span>#}
-{#            </button>#}
-{#          </div>#}
-{#          <div class="iwc-b-panel active">#}
-{#            <div class="iwc-b-section">#}
-{#              <div class="iwc-b-slbl">Müddət</div>#}
-{#              <div class="iwc-b-months">#}
-{#                <button class="iwc-b-m active" data-m="3"  data-r="0" type="button">3 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="6"  data-r="0" type="button">6 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="12" data-r="0" type="button">12 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="18" data-r="0" type="button">18 ay</button>#}
-{#              </div>#}
-{#            </div>#}
-{#            <div class="iwc-b-res">#}
-{#              <div class="iwc-b-ri"><span class="iwc-b-rlbl">Aylıq ödəniş:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div>#}
-{#              <div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymət:</span><strong class="iwc-b-rval iwc-b-total"></strong></div>#}
-{#            </div>#}
-{#            <p class="iwc-b-note">Qeyd: Sifarişin rəsmiləşdirilməsi zamanı 10%-ə qədər xidmət haqqı əlavə oluna bilər</p>#}
-{#          </div>#}
-{#          <div class="iwc-b-panel">#}
-{#            <div class="iwc-b-section">#}
-{#              <div class="iwc-b-slbl">Müddət</div>#}
-{#              <div class="iwc-b-months">#}
-{#                <button class="iwc-b-m active" data-m="3"  data-r="0" type="button">3 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="6"  data-r="0" type="button">6 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="9"  data-r="0" type="button">9 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="12" data-r="0" type="button">12 ay</button>#}
-{#                <button class="iwc-b-m"        data-m="24" data-r="0" type="button">24 ay</button>#}
-{#              </div>#}
-{#            </div>#}
-{#            <div class="iwc-b-res">#}
-{#              <div class="iwc-b-ri"><span class="iwc-b-rlbl">Aylıq ödəniş:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div>#}
-{#              <div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymət:</span><strong class="iwc-b-rval iwc-b-total"></strong></div>#}
-{#            </div>#}
-{#            <p class="iwc-b-note">Qeyd: Sifarişin rəsmiləşdirilməsi zamanı 10%-ə qədər xidmət haqqı əlavə oluna bilər</p>#}
-{#          </div>#}
-{#        </div>#}
-{#        <script>#}
-{#        if(!window._iwcB){window._iwcB=1;(function(){#}
-{#          function esc(s){#}
-{#            return String(s).replace(/[&<>"']/g,function(ch){#}
-{#              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];#}
-{#            });#}
-{#          }#}
-{#          function getBanks(){#}
-{#            var cfg=window.Journal&&window.Journal.installmentConfig;#}
-{#            return cfg&&cfg.banks&&cfg.banks.length?cfg.banks:[];#}
-{#          }#}
-{#          function renderWidget(w){#}
-{#            var banks=getBanks();#}
-{#            var html='<div class="iwc-b-tabs">';#}
-{#            banks.forEach(function(bank,index){#}
-{#              var active=index===0?' active':'';#}
-{#              var logo=bank.logo?"<img src=\""+esc(bank.logo)+"\" alt=\""+esc(bank.name)+"\" onerror=\"this.style.display='none'\">":'';#}
-{#              html+='<button class="iwc-b-tab'+active+'" type="button">'+logo+'<span>'+esc(bank.name)+'</span></button>';#}
-{#            });#}
-{#            html+='</div>';#}
-{#            banks.forEach(function(bank,index){#}
-{#              var active=index===0?' active':'';#}
-{#              html+='<div class="iwc-b-panel'+active+'">';#}
-{#              html+='<div class="iwc-b-section"><div class="iwc-b-slbl">Muddet</div><div class="iwc-b-months">';#}
-{#              bank.plans.forEach(function(plan,planIndex){#}
-{#                html+='<button class="iwc-b-m'+(planIndex===0?' active':'')+'" data-m="'+parseInt(plan.months,10)+'" data-r="'+parseFloat(plan.rate||0)+'" type="button">'+parseInt(plan.months,10)+' ay</button>';#}
-{#              });#}
-{#              html+='</div></div>';#}
-{#              html+='<div class="iwc-b-res"><div class="iwc-b-ri"><span class="iwc-b-rlbl">Ayliq odenis:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div><div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymet:</span><strong class="iwc-b-rval iwc-b-total"></strong></div></div>';#}
-{#              html+='<p class="iwc-b-note">Qeyd: Sifarisin resmilesdirilmesi zamani 10%-e qeder xidmet haqqi elave oluna biler</p>';#}
-{#              html+='</div>';#}
-{#            });#}
-{#            w.innerHTML=html;#}
-{#          }#}
-{#          function initIwcB(w){#}
-{#            if(w.dataset.iwcB)return;w.dataset.iwcB='1';#}
-{#            if(!document.getElementById('product-product')){#}
-{#              w.remove();#}
-{#              return;#}
-{#            }#}
-{#            if(window.Journal && window.Journal.installmentConfig && window.Journal.installmentConfig.enabled === false){#}
-{#              w.remove();#}
-{#              return;#}
-{#            }#}
-{#            if(!getBanks().length){#}
-{#              w.remove();#}
-{#              return;#}
-{#            }#}
-{#            renderWidget(w);#}
-{#            function getPrice(){#}
-{#              var p=parseFloat(window.narcondIP);if(p>0)return p;#}
-{#              var el=document.querySelector('.iwc-pp[data-price]');#}
-{#              if(el){var v=parseFloat(el.dataset.price);if(v>0)return v;}#}
-{#              var pe=document.querySelector('.product-price-new,.product-price');#}
-{#              if(pe){var v=parseFloat(pe.textContent.replace(/,/g,'').replace(/[^\d.]/g,''));if(v>0)return v;}#}
-{#              return 0;#}
-{#            }#}
-{#            function fmt(n){return n.toFixed(2)+' \u20bc';}#}
-{#            function calc(panel){#}
-{#              var price=getPrice();#}
-{#              var am=panel.querySelector('.iwc-b-m.active');if(!am)return;#}
-{#              var monthly=price*(1+parseFloat(am.dataset.r)/100)/parseInt(am.dataset.m);#}
-{#              panel.querySelector('.iwc-b-monthly').textContent=fmt(monthly);#}
-{#              panel.querySelector('.iwc-b-total').textContent=fmt(price);#}
-{#            }#}
-{#            w.querySelectorAll('.iwc-b-panel').forEach(function(p){calc(p);});#}
-{#            w.querySelectorAll('.iwc-b-tab').forEach(function(t,i){#}
-{#              t.addEventListener('click',function(){#}
-{#                w.querySelectorAll('.iwc-b-tab').forEach(function(x){x.classList.remove('active');});#}
-{#                w.querySelectorAll('.iwc-b-panel').forEach(function(x){x.classList.remove('active');});#}
-{#                t.classList.add('active');w.querySelectorAll('.iwc-b-panel')[i].classList.add('active');#}
-{#              });#}
-{#            });#}
-{#            w.querySelectorAll('.iwc-b-panel').forEach(function(panel){#}
-{#              panel.querySelectorAll('.iwc-b-m').forEach(function(b){#}
-{#                b.addEventListener('click',function(){#}
-{#                  panel.querySelectorAll('.iwc-b-m').forEach(function(x){x.classList.remove('active');});#}
-{#                  b.classList.add('active');calc(panel);#}
-{#                });#}
-{#              });#}
-{#            });#}
-{#          }#}
-{#          function run(){document.querySelectorAll('.iwc-b:not([data-iwc-b])').forEach(initIwcB);}#}
-{#          if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}#}
-{#        })();}#}
-{#        </script>#}
+        <style>
+        .iwc-b{font-family:inherit;box-sizing:border-box}.iwc-b *{box-sizing:border-box}
+        .iwc-b-tabs{display:flex;gap:8px;margin-bottom:14px}
+        .iwc-b-tab{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;cursor:pointer;min-height:44px;transition:all .15s}
+        .iwc-b-tab img{max-height:22px;max-width:80px;object-fit:contain;pointer-events:none}
+        .iwc-b-tab>span{font-size:12px;font-weight:600;color:#333;pointer-events:none;white-space:nowrap}
+        .iwc-b-tab.active{background:#111;border-color:#111}
+        .iwc-b-tab.active img{filter:brightness(0) invert(1)}
+        .iwc-b-tab.active>span{color:#fff}
+        .iwc-b-tab:hover:not(.active){border-color:#aaa}
+        .iwc-b-panel{display:none}.iwc-b-panel.active{display:block}
+        .iwc-b-section{background:#f5f5f5;border-radius:12px;padding:16px 18px;margin-bottom:10px}
+        .iwc-b-slbl{font-size:13px;font-weight:600;color:#222;margin:0 0 12px}
+        .iwc-b-months{display:flex;gap:8px;flex-wrap:wrap}
+        .iwc-b-m{padding:7px 16px;border:1.5px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;font-size:13px;color:#333;transition:all .15s;white-space:nowrap}
+        .iwc-b-m.active{background:#d32f2f;border-color:#d32f2f;color:#fff}
+        .iwc-b-m:hover:not(.active){background:#ebebeb;border-color:#ccc}
+        .iwc-b-res{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:4px 0 8px}
+        .iwc-b-ri{display:flex;flex-direction:column;gap:4px}
+        .iwc-b-rlbl{font-size:12px;color:#888}
+        .iwc-b-rval{font-size:26px;font-weight:700;color:#111;line-height:1.1;display:block}
+        .iwc-b-note{font-size:11px;color:#aaa;line-height:1.5;margin:0}
+        </style>
+        <div class="iwc-b">
+          <div class="iwc-b-tabs">
+            <button class="iwc-b-tab active" type="button">
+              <img src="image/catalog/banks/birbank.png" alt="Birbank" onerror="this.style.display='none'">
+              <span>Birbank</span>
+            </button>
+            <button class="iwc-b-tab" type="button">
+              <img src="image/catalog/banks/tamkart.png" alt="TamKart" onerror="this.style.display='none'">
+              <span>TamKart</span>
+            </button>
+          </div>
+          <div class="iwc-b-panel active">
+            <div class="iwc-b-section">
+              <div class="iwc-b-slbl">Müddət</div>
+              <div class="iwc-b-months">
+                <button class="iwc-b-m active" data-m="3"  data-r="0" type="button">3 ay</button>
+                <button class="iwc-b-m"        data-m="6"  data-r="0" type="button">6 ay</button>
+                <button class="iwc-b-m"        data-m="12" data-r="0" type="button">12 ay</button>
+                <button class="iwc-b-m"        data-m="18" data-r="0" type="button">18 ay</button>
+              </div>
+            </div>
+            <div class="iwc-b-res">
+              <div class="iwc-b-ri"><span class="iwc-b-rlbl">Aylıq ödəniş:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div>
+              <div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymət:</span><strong class="iwc-b-rval iwc-b-total"></strong></div>
+            </div>
+            <p class="iwc-b-note">Qeyd: Sifarişin rəsmiləşdirilməsi zamanı 10%-ə qədər xidmət haqqı əlavə oluna bilər</p>
+          </div>
+          <div class="iwc-b-panel">
+            <div class="iwc-b-section">
+              <div class="iwc-b-slbl">Müddət</div>
+              <div class="iwc-b-months">
+                <button class="iwc-b-m active" data-m="3"  data-r="0" type="button">3 ay</button>
+                <button class="iwc-b-m"        data-m="6"  data-r="0" type="button">6 ay</button>
+                <button class="iwc-b-m"        data-m="9"  data-r="0" type="button">9 ay</button>
+                <button class="iwc-b-m"        data-m="12" data-r="0" type="button">12 ay</button>
+                <button class="iwc-b-m"        data-m="24" data-r="0" type="button">24 ay</button>
+              </div>
+            </div>
+            <div class="iwc-b-res">
+              <div class="iwc-b-ri"><span class="iwc-b-rlbl">Aylıq ödəniş:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div>
+              <div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymət:</span><strong class="iwc-b-rval iwc-b-total"></strong></div>
+            </div>
+            <p class="iwc-b-note">Qeyd: Sifarişin rəsmiləşdirilməsi zamanı 10%-ə qədər xidmət haqqı əlavə oluna bilər</p>
+          </div>
+        </div>
+        <script>
+        if(!window._iwcB){window._iwcB=1;(function(){
+          function esc(s){
+            return String(s).replace(/[&<>"']/g,function(ch){
+              return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+            });
+          }
+          function getBanks(){
+            var cfg=window.Journal&&window.Journal.installmentConfig;
+            return cfg&&cfg.banks&&cfg.banks.length?cfg.banks:[];
+          }
+          function renderWidget(w){
+            var banks=getBanks();
+            var html='<div class="iwc-b-tabs">';
+            banks.forEach(function(bank,index){
+              var active=index===0?' active':'';
+              var logo=bank.logo?"<img src=\""+esc(bank.logo)+"\" alt=\""+esc(bank.name)+"\" onerror=\"this.style.display='none'\">":'';
+              html+='<button class="iwc-b-tab'+active+'" type="button">'+logo+'<span>'+esc(bank.name)+'</span></button>';
+            });
+            html+='</div>';
+            banks.forEach(function(bank,index){
+              var active=index===0?' active':'';
+              html+='<div class="iwc-b-panel'+active+'">';
+              html+='<div class="iwc-b-section"><div class="iwc-b-slbl">Muddet</div><div class="iwc-b-months">';
+              bank.plans.forEach(function(plan,planIndex){
+                html+='<button class="iwc-b-m'+(planIndex===0?' active':'')+'" data-m="'+parseInt(plan.months,10)+'" data-r="'+parseFloat(plan.rate||0)+'" type="button">'+parseInt(plan.months,10)+' ay</button>';
+              });
+              html+='</div></div>';
+              html+='<div class="iwc-b-res"><div class="iwc-b-ri"><span class="iwc-b-rlbl">Ayliq odenis:</span><strong class="iwc-b-rval iwc-b-monthly"></strong></div><div class="iwc-b-ri" style="text-align:right"><span class="iwc-b-rlbl">Yekun qiymet:</span><strong class="iwc-b-rval iwc-b-total"></strong></div></div>';
+              html+='<p class="iwc-b-note">Qeyd: Sifarisin resmilesdirilmesi zamani 10%-e qeder xidmet haqqi elave oluna biler</p>';
+              html+='</div>';
+            });
+            w.innerHTML=html;
+          }
+          function initIwcB(w){
+            if(w.dataset.iwcB)return;w.dataset.iwcB='1';
+            if(!document.getElementById('product-product')){
+              w.remove();
+              return;
+            }
+            if(window.Journal && window.Journal.installmentConfig && window.Journal.installmentConfig.enabled === false){
+              w.remove();
+              return;
+            }
+            if(!getBanks().length){
+              w.remove();
+              return;
+            }
+            renderWidget(w);
+            function getPrice(){
+              var p=parseFloat(window.narcondIP);if(p>0)return p;
+              var el=document.querySelector('.iwc-pp[data-price]');
+              if(el){var v=parseFloat(el.dataset.price);if(v>0)return v;}
+              var pe=document.querySelector('.product-price-new,.product-price');
+              if(pe){var v=parseFloat(pe.textContent.replace(/,/g,'').replace(/[^\d.]/g,''));if(v>0)return v;}
+              return 0;
+            }
+            function fmt(n){return n.toFixed(2)+' \u20bc';}
+            function calc(panel){
+              var price=getPrice();
+              var am=panel.querySelector('.iwc-b-m.active');if(!am)return;
+              var monthly=price*(1+parseFloat(am.dataset.r)/100)/parseInt(am.dataset.m);
+              panel.querySelector('.iwc-b-monthly').textContent=fmt(monthly);
+              panel.querySelector('.iwc-b-total').textContent=fmt(price);
+            }
+            w.querySelectorAll('.iwc-b-panel').forEach(function(p){calc(p);});
+            w.querySelectorAll('.iwc-b-tab').forEach(function(t,i){
+              t.addEventListener('click',function(){
+                w.querySelectorAll('.iwc-b-tab').forEach(function(x){x.classList.remove('active');});
+                w.querySelectorAll('.iwc-b-panel').forEach(function(x){x.classList.remove('active');});
+                t.classList.add('active');w.querySelectorAll('.iwc-b-panel')[i].classList.add('active');
+              });
+            });
+            w.querySelectorAll('.iwc-b-panel').forEach(function(panel){
+              panel.querySelectorAll('.iwc-b-m').forEach(function(b){
+                b.addEventListener('click',function(){
+                  panel.querySelectorAll('.iwc-b-m').forEach(function(x){x.classList.remove('active');});
+                  b.classList.add('active');calc(panel);
+                });
+              });
+            });
+          }
+          function run(){document.querySelectorAll('.iwc-b:not([data-iwc-b])').forEach(initIwcB);}
+          if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',run);}else{run();}
+        })();}
+        </script>
 
-{#        {% if item.expandButton %}#}
-{#          <div class="block-expand-overlay"><a class="block-expand btn"></a></div>#}
-{#        {% endif %}#}
-{#      </div>#}
-{#      {% if item.footer == 'text' %}#}
-{#        <div class="block-footer">{{ item.footerText }}</div>#}
-{#      {% elseif item.footer == 'button' %}#}
-{#        <div class="block-footer"><a class="btn" href="{{ item.footerButtonLink.href }}" {{ context.j3.linkAttrs(item.footerButtonLink) }}>{{ item.footerButton }}</a></div>#}
-{#      {% endif %}#}
-{#    </div>#}
-{#  </div>#}
-{#{% endmacro %}#}
+        {% if item.expandButton %}
+          <div class="block-expand-overlay"><a class="block-expand btn"></a></div>
+        {% endif %}
+      </div>
+      {% if item.footer == 'text' %}
+        <div class="block-footer">{{ item.footerText }}</div>
+      {% elseif item.footer == 'button' %}
+        <div class="block-footer"><a class="btn" href="{{ item.footerButtonLink.href }}" {{ context.j3.linkAttrs(item.footerButtonLink) }}>{{ item.footerButton }}</a></div>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
 {% import _self as self %}
 <div class="{{ j3.classes(classes) }}">
   {% if title %}
